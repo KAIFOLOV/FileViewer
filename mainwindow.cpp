@@ -3,6 +3,7 @@
 #include "file_type_scan_strategy.h"
 
 #include <QVBoxLayout>
+#include <QHeaderView>
 #include <QFileSystemModel>
 #include <QFileDialog>
 #include <QPieSeries>
@@ -10,21 +11,33 @@
 #include <QBarSet>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), strategy(nullptr) {
-    auto *widget = new QWidget;
-    auto *layout = new QVBoxLayout(widget);
+    auto widget = new QWidget();
+    widget->setMinimumSize(1100, 600);
+    auto layout = new QVBoxLayout(widget);
+    auto mainContentLayout = new QHBoxLayout();
 
-    strategyBox = new QComboBox;
+    strategyBox = new QComboBox();
     strategyBox->addItems({"Группировка по папкам", "Группировка по типам"});
     connect(strategyBox, &QComboBox::currentIndexChanged, this, &MainWindow::updateStrategy);
 
-    viewBox = new QComboBox;
+    viewBox = new QComboBox();
     viewBox->addItems({"Таблица", "Круговая диаграмма", "Столбчатая диаграмма"});
     connect(viewBox, &QComboBox::currentIndexChanged, this, &MainWindow::updateView);
 
-    treeView = new QTreeView;
-    QFileSystemModel *fileSystemModel = new QFileSystemModel(this);
-    fileSystemModel->setRootPath("");  // Устанавливаем корень модели в пустую строку для возможности отображать весь файл
+    treeView = new QTreeView();
+    treeView->setMinimumSize(600, 500);
+    treeView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    // Создаем модель один раз
+    fileSystemModel = new QFileSystemModel(this);
+    fileSystemModel->setRootPath("");
     treeView->setModel(fileSystemModel);
+
+    // Задаем ширину колонок сразу после установки модели
+    treeView->setColumnWidth(0, 300);
+    treeView->setColumnWidth(1, 100);
+    treeView->setColumnWidth(2, 100);
+    treeView->setColumnWidth(3, 100);
 
     connect(treeView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &MainWindow::onDirectorySelected);
 
@@ -32,19 +45,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), strategy(nullptr)
     model = new FileSizeModel(this);
     tableView->setModel(model);
 
-    chartView = new QChartView;
+    chartView = new QChartView();
     chartView->setVisible(false);
 
-    // Кнопка для выбора папки
     selectFolderButton = new QPushButton("Выбрать папку", this);
     connect(selectFolderButton, &QPushButton::clicked, this, &MainWindow::onSelectFolder);
 
+    mainContentLayout->addWidget(treeView);
+    mainContentLayout->addWidget(tableView);
+    mainContentLayout->addWidget(chartView);
+
     layout->addWidget(strategyBox);
     layout->addWidget(viewBox);
-    layout->addWidget(selectFolderButton);  // Добавляем кнопку на layout
-    layout->addWidget(treeView);
-    layout->addWidget(tableView);
-    layout->addWidget(chartView);
+    layout->addWidget(selectFolderButton);
+    layout->addLayout(mainContentLayout);
     setCentralWidget(widget);
 
     updateStrategy(0);
@@ -55,15 +69,21 @@ MainWindow::~MainWindow() {}
 void MainWindow::updateStrategy(int index) {
     delete strategy;
     index == 0 ? strategy = new FolderScanStrategy() : strategy = new FileTypeScanStrategy();
+    model->setData(strategy->scan(_currentFolderPath));
+    updateView(_currentView);
 }
 
 void MainWindow::onDirectorySelected(const QItemSelection &selected) {
     if (selected.isEmpty()) return;
     QString path = selected.indexes().first().data(QFileSystemModel::FilePathRole).toString();
+    _currentFolderPath = path;
     model->setData(strategy->scan(path));
+    updateView(_currentView);
 }
 
 void MainWindow::updateView(int index) {
+    _currentView = index;
+
     tableView->setVisible(index == 0);
     chartView->setVisible(index != 0);
     if (index == 1) showPieChart();
@@ -98,16 +118,13 @@ void MainWindow::showBarChart() {
 }
 
 void MainWindow::onSelectFolder() {
-    // Открываем диалог выбора папки
     QString folderPath = QFileDialog::getExistingDirectory(this, "Выбрать папку");
+    _currentFolderPath = folderPath;
 
     if (!folderPath.isEmpty()) {
-        // Устанавливаем путь выбранной папки для отображения в дереве
-        QFileSystemModel *fileSystemModel = new QFileSystemModel(this);
-        fileSystemModel->setRootPath(folderPath);  // Устанавливаем выбранную папку как корень
-        treeView->setModel(fileSystemModel);  // Обновляем модель
+        fileSystemModel->setRootPath(folderPath);
+        treeView->setRootIndex(fileSystemModel->index(folderPath));
 
-        // Обновляем модель с данными по выбранной папке
         model->setData(strategy->scan(folderPath));
     }
 }

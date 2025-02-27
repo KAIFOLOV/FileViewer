@@ -4,6 +4,7 @@
 #include "IScanStrategy.h"
 #include "file_size_model.h"
 
+#include <QFileSystemModel>
 #include <QMainWindow>
 #include <QTreeView>
 #include <QChartView>
@@ -33,6 +34,7 @@ private slots:
     void onSelectFolder();  // Слот для кнопки выбора папки
 
 private:
+    QFileSystemModel *fileSystemModel;
     QTreeView *treeView;
     QTableView *tableView;
     QChartView *chartView;
@@ -41,5 +43,8 @@ private:
     QPushButton *selectFolderButton;  // Кнопка для выбора папки
     FileSizeModel *model;
     IScanStrategy *strategy;
+
+    QString _currentFolderPath {};
+    int _currentView = 0;
 };
 #endif // MAINWINDOW_H
