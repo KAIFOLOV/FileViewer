@@ -1,9 +1,0 @@
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/FileVieWer.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/install.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/FileVieWer_autogen_timestamp_deps.dir
-E:/programming/FileViewer/build/Desktop_Qt_6_7_1_MinGW_64_bit-Debug/CMakeFiles/FileVieWer_autogen.dir
